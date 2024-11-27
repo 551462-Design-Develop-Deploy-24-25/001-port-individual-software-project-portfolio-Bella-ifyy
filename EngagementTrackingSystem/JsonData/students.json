@@ -1,0 +1,20 @@
+[
+  {
+    "Id": 9999,
+    "Name": "Emily",
+    "Email": "emily@hull.ac.uk",
+    "StatusReport": "I had a bike accident and broke my leg hence why I missed the labworks"
+  },
+  {
+    "Id": 3003,
+    "Name": "Allen",
+    "Email": "allen@hull.ac.uk",
+    "StatusReport": "I need help understanding the last lecture"
+  },
+  {
+    "Id": 7666,
+    "Name": "Russel",
+    "Email": "russel@gmail.com",
+    "StatusReport": "I have been ill and unmotivated to code"
+  }
+]

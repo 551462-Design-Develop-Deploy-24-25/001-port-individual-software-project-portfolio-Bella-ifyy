@@ -7,4 +7,34 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="JsonData\" />
+    <None Remove="Models\" />
+    <None Remove="Repositories\" />
+    <None Remove="Services\" />
+    <None Remove="JsonData\meetings.json" />
+    <None Remove="JsonData\personalSupervisors.json" />
+    <None Remove="JsonData\seniorTutors.json" />
+    <None Remove="JsonData\students.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="JsonData\" />
+    <Folder Include="Models\" />
+    <Folder Include="Repositories\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="JsonData\meetings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="JsonData\personalSupervisors.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="JsonData\seniorTutors.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="JsonData\students.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>
