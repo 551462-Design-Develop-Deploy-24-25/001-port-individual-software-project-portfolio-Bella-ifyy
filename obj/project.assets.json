@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/ify/Projects/EngagementTrackingSystem/EngagementTrackingSystem/EngagementTrackingSystem.csproj",
+      "projectUniqueName": "/Users/ify/Projects/EngagementTrackingSystem/EngagementTrackingSystem.csproj",
       "projectName": "EngagementTrackingSystem",
-      "projectPath": "/Users/ify/Projects/EngagementTrackingSystem/EngagementTrackingSystem/EngagementTrackingSystem.csproj",
+      "projectPath": "/Users/ify/Projects/EngagementTrackingSystem/EngagementTrackingSystem.csproj",
       "packagesPath": "/Users/ify/.nuget/packages/",
-      "outputPath": "/Users/ify/Projects/EngagementTrackingSystem/EngagementTrackingSystem/obj/",
+      "outputPath": "/Users/ify/Projects/EngagementTrackingSystem/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/ify/.nuget/NuGet/NuGet.Config"
@@ -60,7 +60,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.403/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.100/RuntimeIdentifierGraph.json"
       }
     }
   }

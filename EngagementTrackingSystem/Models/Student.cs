@@ -13,8 +13,11 @@ namespace EngagementTrackingSystem.Models
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty; // Default value
         public string Email { get; set; } = string.Empty; // Default value
-        public string StatusReport { get; set; } = string.Empty; // Default value
-        public virtual ICollection<Meeting> Meetings { get; set; } = new List<Meeting>(); // Default value
+        [JsonIgnore] // Exclude from serialization
+        public string StatusReport { get; set; } = string.Empty;
+
+        [JsonIgnore] // Exclude from serialization
+        public List<Meeting>? Meetings { get; set; }
     }
 
 }
