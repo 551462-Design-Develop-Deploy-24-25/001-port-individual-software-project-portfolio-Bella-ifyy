@@ -1,64 +1,61 @@
-﻿//seniorTutorRepository.cs
-// Using directives
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using EngagementTrackingSystem.Models;
 
 namespace EngagementTrackingSystem.Repositories
 {
-    // Repository class for managing senior tutors
     public class SeniorTutorRepository
     {
-        private List<SeniorTutor> seniorTutors = new List<SeniorTutor>(); // In-memory list
+        private List<SeniorTutor> seniorTutors; // In-memory list
         private JsonDataStorage dataStorage; // Data storage utility
 
-        // Constructor initializes data storage and loads existing tutors
         public SeniorTutorRepository(string filePath)
         {
             dataStorage = new JsonDataStorage(filePath);
-            seniorTutors = dataStorage.LoadData<List<SeniorTutor>>() ?? new List<SeniorTutor>();
+
+            // Ensure the data is never null
+            seniorTutors = dataStorage.LoadData<List<SeniorTutor>>() ?? throw new InvalidOperationException("Senior Tutor data is missing or invalid.");
         }
 
         // Retrieves all senior tutors
         public IEnumerable<SeniorTutor> GetAllSeniorTutors()
         {
-            return seniorTutors;
+            return seniorTutors; // Safe because seniorTutors is initialized in the constructor
         }
 
         // Retrieves a senior tutor by ID
         public SeniorTutor GetSeniorTutorById(int id)
         {
-            return seniorTutors.Find(st => st.Id == id);
+            return seniorTutors.Find(st => st.Id == id) ?? throw new KeyNotFoundException($"Senior Tutor with ID {id} not found.");
         }
 
         // Adds a new senior tutor and saves data
         public void AddSeniorTutor(SeniorTutor seniorTutor)
         {
             seniorTutors.Add(seniorTutor);
-            dataStorage.SaveData(seniorTutors); // Save after adding
+            dataStorage.SaveData(seniorTutors); // Save updated data
         }
 
         // Updates an existing senior tutor and saves data
         public void UpdateSeniorTutor(SeniorTutor seniorTutor)
         {
-            var existingSeniorTutor = GetSeniorTutorById(seniorTutor.Id);
-            if (existingSeniorTutor != null)
+            var existingTutor = GetSeniorTutorById(seniorTutor.Id);
+            if (existingTutor != null)
             {
-                existingSeniorTutor.Name = seniorTutor.Name;
-                existingSeniorTutor.Email = seniorTutor.Email;
-                dataStorage.SaveData(seniorTutors); // Save after updating
+                existingTutor.Name = seniorTutor.Name;
+                existingTutor.Email = seniorTutor.Email;
+                dataStorage.SaveData(seniorTutors); // Save updated data
             }
         }
 
-        // Deletes a senior tutor by ID and saves data
+        // Deletes a senior tutor by ID
         public void DeleteSeniorTutor(int id)
         {
-            var seniorTutor = GetSeniorTutorById(id);
-            if (seniorTutor != null)
+            var tutor = GetSeniorTutorById(id);
+            if (tutor != null)
             {
-                seniorTutors.Remove(seniorTutor);
-                dataStorage.SaveData(seniorTutors); // Save after deleting
+                seniorTutors.Remove(tutor);
+                dataStorage.SaveData(seniorTutors); // Save updated data
             }
         }
     }

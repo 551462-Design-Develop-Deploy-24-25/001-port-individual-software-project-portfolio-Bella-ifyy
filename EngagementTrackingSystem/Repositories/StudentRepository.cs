@@ -1,41 +1,39 @@
-﻿//studentRepository.cs
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using EngagementTrackingSystem.Models;
 
 namespace EngagementTrackingSystem.Repositories
 {
-    // Repository class for managing students
     public class StudentRepository
     {
-        private List<Student> students = new List<Student>(); // In-memory list
+        private List<Student> students; // In-memory list of students
         private JsonDataStorage dataStorage; // Data storage utility
 
-        // Constructor initializes data storage and loads existing students
         public StudentRepository(string filePath)
         {
             dataStorage = new JsonDataStorage(filePath);
-            students = dataStorage.LoadData<List<Student>>() ?? new List<Student>();
+
+            // Ensure the data is never null
+            students = dataStorage.LoadData<List<Student>>() ?? throw new InvalidOperationException("Student data is missing or invalid.");
         }
 
         // Retrieves all students
         public IEnumerable<Student> GetAllStudents()
         {
-            return students;
+            return students; // Safe because students is initialized in the constructor
         }
 
         // Retrieves a student by ID
         public Student GetStudentById(int id)
         {
-            return students.Find(s => s.Id == id);
+            return students.Find(s => s.Id == id) ?? throw new KeyNotFoundException($"Student with ID {id} not found.");
         }
 
         // Adds a new student and saves data
         public void AddStudent(Student student)
         {
             students.Add(student);
-            dataStorage.SaveData(students); // Save after adding
+            dataStorage.SaveData(students); // Save updated data
         }
 
         // Updates an existing student and saves data
@@ -46,19 +44,19 @@ namespace EngagementTrackingSystem.Repositories
             {
                 existingStudent.Name = student.Name;
                 existingStudent.Email = student.Email;
-                existingStudent.StatusReport = student.StatusReport; // Update for self-reporting
-                dataStorage.SaveData(students); // Save after updating
+                existingStudent.StatusReport = student.StatusReport;
+                dataStorage.SaveData(students); // Save updated data
             }
         }
 
-        // Deletes a student by ID and saves data
+        // Deletes a student by ID
         public void DeleteStudent(int id)
         {
             var student = GetStudentById(id);
             if (student != null)
             {
                 students.Remove(student);
-                dataStorage.SaveData(students); // Save after deleting
+                dataStorage.SaveData(students); // Save updated data
             }
         }
     }

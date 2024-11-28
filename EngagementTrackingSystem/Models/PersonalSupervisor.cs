@@ -7,15 +7,12 @@ namespace EngagementTrackingSystem.Models
 {
     // Represents a personal supervisor who oversees students
     public class PersonalSupervisor
-    {
-        public int Id { get; set; } // Unique identifier for the personal supervisor
-        public string Name { get; set; } // Name of the supervisor
-        public string Email { get; set; } // Email address
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty; // Default value
+    public string Email { get; set; } = string.Empty; // Default value
+    public virtual ICollection<Student> Students { get; set; } = new List<Student>(); // Default value
+    public virtual ICollection<Meeting> Meetings { get; set; } = new List<Meeting>(); // Default value
+}
 
-        [JsonIgnore] // Do not serialize navigation properties
-        public virtual ICollection<Student> Students { get; set; }
-
-        [JsonIgnore]
-        public virtual ICollection<Meeting> Meetings { get; set; }
-    }
 }

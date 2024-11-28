@@ -1,64 +1,61 @@
-﻿//personalSupervisorRepository.cs
-// Using directives
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using EngagementTrackingSystem.Models;
 
 namespace EngagementTrackingSystem.Repositories
 {
-    // Repository class for managing personal supervisors
     public class PersonalSupervisorRepository
     {
-        private List<PersonalSupervisor> personalSupervisors = new List<PersonalSupervisor>(); // In-memory list
+        private List<PersonalSupervisor> personalSupervisors; // In-memory list
         private JsonDataStorage dataStorage; // Data storage utility
 
-        // Constructor initializes data storage and loads existing supervisors
         public PersonalSupervisorRepository(string filePath)
         {
             dataStorage = new JsonDataStorage(filePath);
-            personalSupervisors = dataStorage.LoadData<List<PersonalSupervisor>>() ?? new List<PersonalSupervisor>();
+
+            // Ensure the data is never null
+            personalSupervisors = dataStorage.LoadData<List<PersonalSupervisor>>() ?? throw new InvalidOperationException("Personal Supervisor data is missing or invalid.");
         }
 
         // Retrieves all personal supervisors
         public IEnumerable<PersonalSupervisor> GetAllPersonalSupervisors()
         {
-            return personalSupervisors;
+            return personalSupervisors; // Safe because personalSupervisors is initialized in the constructor
         }
 
         // Retrieves a personal supervisor by ID
         public PersonalSupervisor GetPersonalSupervisorById(int id)
         {
-            return personalSupervisors.Find(ps => ps.Id == id);
+            return personalSupervisors.Find(ps => ps.Id == id) ?? throw new KeyNotFoundException($"Personal Supervisor with ID {id} not found.");
         }
 
         // Adds a new personal supervisor and saves data
         public void AddPersonalSupervisor(PersonalSupervisor personalSupervisor)
         {
             personalSupervisors.Add(personalSupervisor);
-            dataStorage.SaveData(personalSupervisors); // Save after adding
+            dataStorage.SaveData(personalSupervisors); // Save updated data
         }
 
         // Updates an existing personal supervisor and saves data
         public void UpdatePersonalSupervisor(PersonalSupervisor personalSupervisor)
         {
-            var existingPersonalSupervisor = GetPersonalSupervisorById(personalSupervisor.Id);
-            if (existingPersonalSupervisor != null)
+            var existingSupervisor = GetPersonalSupervisorById(personalSupervisor.Id);
+            if (existingSupervisor != null)
             {
-                existingPersonalSupervisor.Name = personalSupervisor.Name;
-                existingPersonalSupervisor.Email = personalSupervisor.Email;
-                dataStorage.SaveData(personalSupervisors); // Save after updating
+                existingSupervisor.Name = personalSupervisor.Name;
+                existingSupervisor.Email = personalSupervisor.Email;
+                dataStorage.SaveData(personalSupervisors); // Save updated data
             }
         }
 
-        // Deletes a personal supervisor by ID and saves data
+        // Deletes a personal supervisor by ID
         public void DeletePersonalSupervisor(int id)
         {
-            var personalSupervisor = GetPersonalSupervisorById(id);
-            if (personalSupervisor != null)
+            var supervisor = GetPersonalSupervisorById(id);
+            if (supervisor != null)
             {
-                personalSupervisors.Remove(personalSupervisor);
-                dataStorage.SaveData(personalSupervisors); // Save after deleting
+                personalSupervisors.Remove(supervisor);
+                dataStorage.SaveData(personalSupervisors); // Save updated data
             }
         }
     }

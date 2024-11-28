@@ -52,11 +52,12 @@ namespace EngagementTrackingSystem.Service
         public void ReportStatus(int studentId, string status)
         {
             var student = studentRepository.GetStudentById(studentId);
-            if (student != null)
+            if (student == null)
             {
-                student.StatusReport = status;
-                studentRepository.UpdateStudent(student);
+                Console.WriteLine("Student not found!");
+                return;
             }
+
         }
     }
 }

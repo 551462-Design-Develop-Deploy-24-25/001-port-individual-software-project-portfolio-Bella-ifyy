@@ -1,43 +1,39 @@
-﻿//meetingRepository.cs
-// Using directives
-using System;
+﻿using System;
 using System.Collections.Generic;
 using EngagementTrackingSystem.Models;
 
 namespace EngagementTrackingSystem.Repositories
 {
-    // Repository class for managing meetings
     public class MeetingRepository
     {
-        private List<Meeting> meetings = new List<Meeting>(); // In-memory list of meetings
+        private List<Meeting> meetings; // In-memory list of meetings
         private JsonDataStorage dataStorage; // Data storage utility
 
-        // Constructor initializes data storage and loads existing meetings
         public MeetingRepository(string filePath)
         {
             dataStorage = new JsonDataStorage(filePath);
-            meetings = dataStorage.LoadData<List<Meeting>>() ?? new List<Meeting>();
+
+            // Ensure the data is never null
+            meetings = dataStorage.LoadData<List<Meeting>>() ?? throw new InvalidOperationException("Meeting data is missing or invalid.");
         }
 
         // Retrieves all meetings
         public IEnumerable<Meeting> GetAllMeetings()
         {
-            return meetings;
+            return meetings; // Safe because meetings is initialized in the constructor
         }
 
-        // Retrieves a meeting by its unique ID
+        // Retrieves a meeting by ID
         public Meeting GetMeetingById(int id)
         {
-            return meetings.Find(m => m.Id == id);
+            return meetings.Find(m => m.Id == id) ?? throw new KeyNotFoundException($"Meeting with ID {id} not found.");
         }
 
         // Adds a new meeting and saves data
         public void AddMeeting(Meeting meeting)
         {
-            // Auto-generate a unique ID
-            meeting.Id = meetings.Count > 0 ? meetings.Max(m => m.Id) + 1 : 1;
             meetings.Add(meeting);
-            dataStorage.SaveData(meetings); // Save after adding
+            dataStorage.SaveData(meetings); // Save updated data
         }
 
         // Updates an existing meeting and saves data
@@ -47,19 +43,20 @@ namespace EngagementTrackingSystem.Repositories
             if (existingMeeting != null)
             {
                 existingMeeting.Date = meeting.Date;
-                // existingMeeting.Description = meeting.Description; // Commented out
-                dataStorage.SaveData(meetings); // Save after updating
+                existingMeeting.StudentId = meeting.StudentId;
+                existingMeeting.PersonalSupervisorId = meeting.PersonalSupervisorId;
+                dataStorage.SaveData(meetings); // Save updated data
             }
         }
 
-        // Deletes a meeting by ID and saves data
+        // Deletes a meeting by ID
         public void DeleteMeeting(int id)
         {
             var meeting = GetMeetingById(id);
             if (meeting != null)
             {
                 meetings.Remove(meeting);
-                dataStorage.SaveData(meetings); // Save after deleting
+                dataStorage.SaveData(meetings); // Save updated data
             }
         }
     }

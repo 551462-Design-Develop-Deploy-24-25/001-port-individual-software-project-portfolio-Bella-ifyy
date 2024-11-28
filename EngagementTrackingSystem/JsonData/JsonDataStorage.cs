@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using EngagementTrackingSystem.Models;
 
 // Utility class for JSON data storage
 public class JsonDataStorage
@@ -28,15 +29,17 @@ public class JsonDataStorage
     {
         if (!File.Exists(filePath))
         {
-            return default;
+            return Activator.CreateInstance<T>(); // Default object for generic type T
         }
 
         var json = File.ReadAllText(filePath);
         return JsonSerializer.Deserialize<T>(json, new JsonSerializerOptions
         {
             Converters = { new DateTimeCustomConverter() }
-        });
+        }) ?? Activator.CreateInstance<T>();
+
     }
+
 }
 
 

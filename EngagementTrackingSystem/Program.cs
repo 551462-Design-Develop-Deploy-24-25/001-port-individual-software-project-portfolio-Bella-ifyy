@@ -85,14 +85,16 @@ class Program
     // Validation for Emails
     static bool ValidateEmail(string email)
     {
-        string emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-        if (!Regex.IsMatch(email, emailPattern))
+        if (string.IsNullOrEmpty(email))
         {
-            Console.WriteLine("Error: Invalid email format. Please use a valid email like example@example.com.");
-            return false;
+            Console.WriteLine("Error: Email cannot be empty.");
+            return false; // Always return false for invalid cases
         }
-        return true;
+
+        string emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+        return Regex.IsMatch(email, emailPattern); // Match or return false
     }
+
 
     // Validation for Dates
     static bool ValidateFutureDate(string dateInput, out DateTime date)
@@ -125,43 +127,59 @@ class Program
     // Add a Student and return the logged-in student object
     static Student AddStudent(StudentService studentService)
     {
-        try
+        while (true) // Loop until valid data is provided
         {
-            Console.Write("Enter your four-digit Student ID: ");
-            int id = int.Parse(Console.ReadLine());
-
-            if (!ValidateId(id, 1000, 9999, "Student"))
+            try
             {
-                Pause();
-                return null;
+                Console.Write("Enter your four-digit Student ID: ");
+                var input = Console.ReadLine() ?? string.Empty;
+
+                if (!int.TryParse(input, out int id))
+                {
+                    Console.WriteLine("Invalid input. Please enter a valid four-digit number.");
+                    continue; // Retry
+                }
+
+                if (!ValidateId(id, 1000, 9999, "Student"))
+                {
+                    Console.WriteLine("Invalid ID. Please enter an ID between 1000 and 9999.");
+                    continue; // Retry
+                }
+
+                Console.Write("Enter your Name: ");
+                string name = Console.ReadLine() ?? string.Empty;
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    Console.WriteLine("Name cannot be empty.");
+                    Pause();
+                    return null;
+                }
+
+
+                Console.Write("Enter your Email: ");
+                string email = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(email) || !ValidateEmail(email))
+                {
+                    Console.WriteLine("Invalid email address. Please try again.");
+                    continue; // Retry
+                }
+
+                // If all inputs are valid, create and add the student
+                var student = new Student { Id = id, Name = name, Email = email };
+                studentService.AddStudent(student);
+
+                Console.WriteLine("Student logged in successfully.");
+                Pause(); // Optional: Pause to let the user see the success message
+                return student; // Return the newly created student
             }
-
-            Console.Write("Enter your Name: ");
-            string name = Console.ReadLine();
-
-            Console.Write("Enter your Email: ");
-            string email = Console.ReadLine();
-
-            if (!ValidateEmail(email))
+            catch (Exception ex)
             {
-                Pause();
-                return null;
+                Console.WriteLine($"Error: {ex.Message}");
+                Pause(); // Optional: Pause to show the error message
             }
-
-            var student = new Student { Id = id, Name = name, Email = email };
-            studentService.AddStudent(student);
-
-            Console.WriteLine("Student logged in successfully.");
-            Pause();
-            return student; // Return the logged-in student
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error: {ex.Message}");
-            Pause();
-            return null;
         }
     }
+
 
     // Add a Personal Supervisor and return the logged-in supervisor object
     static PersonalSupervisor AddPersonalSupervisor(PersonalSupervisorService personalSupervisorService)
@@ -169,7 +187,14 @@ class Program
         try
         {
             Console.Write("Enter your three-digit Supervisor ID: ");
-            int id = int.Parse(Console.ReadLine());
+            var input = Console.ReadLine() ?? string.Empty; // Ensure input is never null
+
+            if (!int.TryParse(input, out int id))
+            {
+                Console.WriteLine("Invalid ID. Please enter a valid number.");
+                Pause();
+                return null;
+            }
 
             if (!ValidateId(id, 100, 999, "Personal Supervisor"))
             {
@@ -178,13 +203,19 @@ class Program
             }
 
             Console.Write("Enter your Name: ");
-            string name = Console.ReadLine();
+            string name = Console.ReadLine() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                Console.WriteLine("Name cannot be empty.");
+                Pause();
+                return null;
+            }
 
             Console.Write("Enter your Email: ");
-            string email = Console.ReadLine();
-
-            if (!ValidateEmail(email))
+            string email = Console.ReadLine() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(email) || !ValidateEmail(email))
             {
+                Console.WriteLine("Invalid email address. Please try again.");
                 Pause();
                 return null;
             }
@@ -192,9 +223,9 @@ class Program
             var supervisor = new PersonalSupervisor { Id = id, Name = name, Email = email };
             personalSupervisorService.AddPersonalSupervisor(supervisor);
 
-            Console.WriteLine("Supervisor logged in successfully.");
+            Console.WriteLine("Supervisor added successfully.");
             Pause();
-            return supervisor; // Return the logged-in supervisor
+            return supervisor; // Always return a valid supervisor
         }
         catch (Exception ex)
         {
@@ -204,30 +235,44 @@ class Program
         }
     }
 
+
     // Add a Senior Tutor
     static bool AddSeniorTutor(SeniorTutorService seniorTutorService)
     {
         try
         {
             Console.Write("Enter your two-digit Senior Tutor ID: ");
-            int id = int.Parse(Console.ReadLine());
+            var input = Console.ReadLine() ?? string.Empty;
+
+            if (!int.TryParse(input, out int id))
+            {
+                Console.WriteLine("Invalid ID. Please enter a valid number.");
+                Pause();
+                return false; // Return false instead of null
+            }
 
             if (!ValidateId(id, 10, 99, "Senior Tutor"))
             {
                 Pause();
-                return false;
+                return false; // Return false for invalid ID
             }
 
             Console.Write("Enter your Name: ");
-            string name = Console.ReadLine();
+            string name = Console.ReadLine() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                Console.WriteLine("Name cannot be empty.");
+                Pause();
+                return false; // Return false for empty name
+            }
 
             Console.Write("Enter your Email: ");
-            string email = Console.ReadLine();
-
-            if (!ValidateEmail(email))
+            string email = Console.ReadLine(); 
+            if (string.IsNullOrWhiteSpace(email) || !ValidateEmail(email))
             {
+                Console.WriteLine("Invalid email address. Please try again.");
                 Pause();
-                return false;
+                return false; // Return false for invalid email
             }
 
             var seniorTutor = new SeniorTutor { Id = id, Name = name, Email = email };
@@ -235,15 +280,16 @@ class Program
 
             Console.WriteLine("Senior Tutor logged in successfully.");
             Pause();
-            return true;
+            return true; // Return true for successful addition
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error: {ex.Message}");
             Pause();
-            return false;
+            return false; // Return false if an exception occurs
         }
     }
+
 
     // Student Menu with logged-in student
     static void StudentMenu(StudentService studentService, MeetingService meetingService, Student loggedInStudent)
@@ -351,12 +397,20 @@ class Program
     static void ScheduleMeetingAsSupervisor(MeetingService meetingService, PersonalSupervisor loggedInSupervisor)
     {
         Console.Write("Enter Student ID: ");
-        int studentId = int.Parse(Console.ReadLine());
+        var input = Console.ReadLine() ?? string.Empty;
+        if (!int.TryParse(input, out int studentId))
+        {
+            Console.WriteLine("Invalid Student ID. Please try again.");
+            Pause();
+            return;
+        }
+
 
         Console.Write("Enter Meeting Date (yyyy-mm-dd): ");
-        string dateInput = Console.ReadLine();
-        if (!ValidateFutureDate(dateInput, out DateTime date))
+        var dateInput = Console.ReadLine() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(dateInput) || !ValidateFutureDate(dateInput, out DateTime date))
         {
+            Console.WriteLine("Invalid date. Please try again.");
             Pause();
             return;
         }
@@ -385,13 +439,13 @@ class Program
         int supervisorId = int.Parse(Console.ReadLine());
 
         Console.Write("Enter Meeting Date (yyyy-mm-dd): ");
-        string dateInput = Console.ReadLine();
-        if (!ValidateFutureDate(dateInput, out DateTime date))
+        var dateInput = Console.ReadLine() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(dateInput) || !ValidateFutureDate(dateInput, out DateTime date))
         {
+            Console.WriteLine("Invalid date. Please enter a valid future date.");
             Pause();
             return;
         }
-
         meetingService.ScheduleMeeting(loggedInStudent.Id, supervisorId, date);
         Console.WriteLine("Meeting scheduled successfully.");
         Pause();
