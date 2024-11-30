@@ -1,5 +1,4 @@
-﻿//program.cs
-// Program.cs
+﻿// Program.cs
 using System;
 using System.Text.RegularExpressions;
 using EngagementTrackingSystem.Models;
@@ -11,17 +10,17 @@ class Program
     static void Main(string[] args)
     {
         // Initialize repositories with file paths for data storage
-        var studentRepository = new StudentRepository("students.json");
-        var personalSupervisorRepository = new PersonalSupervisorRepository("personalSupervisors.json");
-        var seniorTutorRepository = new SeniorTutorRepository("seniorTutors.json");
-        var meetingRepository = new MeetingRepository("meetings.json");
+        var studentRepository = new StudentRepository("JsonData/students.json");
+        var personalSupervisorRepository = new PersonalSupervisorRepository("JsonData/personalSupervisors.json");
+        var seniorTutorRepository = new SeniorTutorRepository("JsonData/seniorTutors.json");
+        var meetingRepository = new MeetingRepository("JsonData/meetings.json");
 
         // Initialize services
         var studentService = new StudentService(studentRepository);
         var personalSupervisorService = new PersonalSupervisorService(personalSupervisorRepository);
         var seniorTutorService = new SeniorTutorService(seniorTutorRepository);
-        var meetingService = new MeetingService(meetingRepository);
-
+        var meetingService = new MeetingService(meetingRepository, personalSupervisorRepository, studentRepository);
+     
         bool running = true;
 
         while (running)
@@ -33,7 +32,7 @@ class Program
             Console.WriteLine("3. Login as a Senior Tutor");
             Console.WriteLine("4. Exit");
             Console.Write("Enter your choice: ");
-            var choice = Console.ReadLine();
+            var choice = Console.ReadLine() ?? string.Empty;
 
             // Handle user choice
             switch (choice)
@@ -81,7 +80,7 @@ class Program
         }
         return true;
     }
-
+     
     // Validation for Emails
     static bool ValidateEmail(string email)
     {
@@ -94,7 +93,6 @@ class Program
         string emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
         return Regex.IsMatch(email, emailPattern); // Match or return false
     }
-
 
     // Validation for Dates
     static bool ValidateFutureDate(string dateInput, out DateTime date)
@@ -117,6 +115,7 @@ class Program
 
         return true;
     }
+
     // Helper method to pause the console
     static void Pause()
     {
@@ -142,7 +141,6 @@ class Program
 
                 if (!ValidateId(id, 1000, 9999, "Student"))
                 {
-                    Console.WriteLine("Invalid ID. Please enter an ID between 1000 and 9999.");
                     continue; // Retry
                 }
 
@@ -155,86 +153,79 @@ class Program
                     return null;
                 }
 
-
                 Console.Write("Enter your Email: ");
-                string email = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(email) || !ValidateEmail(email))
+                string email = Console.ReadLine() ?? string.Empty;
+                if (!ValidateEmail(email))
                 {
-                    Console.WriteLine("Invalid email address. Please try again.");
                     continue; // Retry
                 }
 
-                // If all inputs are valid, create and add the student
-                var student = new Student { Id = id, Name = name, Email = email };
+                var student = new Student { Id = id, Name = name, Email = email, StatusReport = "N/A" };
                 studentService.AddStudent(student);
 
                 Console.WriteLine("Student logged in successfully.");
-                Pause(); // Optional: Pause to let the user see the success message
-                return student; // Return the newly created student
+                Pause();
+                return student;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error: {ex.Message}");
-                Pause(); // Optional: Pause to show the error message
+                Pause();
             }
         }
     }
 
-
-    // Add a Personal Supervisor and return the logged-in supervisor object
+    // Add a Personal Supervisor
     static PersonalSupervisor AddPersonalSupervisor(PersonalSupervisorService personalSupervisorService)
     {
-        try
+        while (true)
         {
-            Console.Write("Enter your three-digit Supervisor ID: ");
-            var input = Console.ReadLine() ?? string.Empty; // Ensure input is never null
-
-            if (!int.TryParse(input, out int id))
+            try
             {
-                Console.WriteLine("Invalid ID. Please enter a valid number.");
-                Pause();
-                return null;
-            }
+                Console.Write("Enter your three-digit Supervisor ID: ");
+                var input = Console.ReadLine() ?? string.Empty;
 
-            if (!ValidateId(id, 100, 999, "Personal Supervisor"))
+                if (!int.TryParse(input, out int id))
+                {
+                    Console.WriteLine("Invalid input. Please enter a valid three-digit number.");
+                    continue;
+                }
+
+                if (!ValidateId(id, 100, 999, "Personal Supervisor"))
+                {
+                    continue;
+                }
+
+                Console.Write("Enter your Name: ");
+                string name = Console.ReadLine() ?? string.Empty;
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    Console.WriteLine("Name cannot be empty.");
+                    Pause();
+                    return null;
+                }
+
+                Console.Write("Enter your Email: ");
+                string email = Console.ReadLine() ?? string.Empty;
+                if (!ValidateEmail(email))
+                {
+                    continue;
+                }
+
+                var supervisor = new PersonalSupervisor { Id = id, Name = name, Email = email };
+                personalSupervisorService.AddPersonalSupervisor(supervisor);
+
+                Console.WriteLine("Supervisor added successfully.");
+                Pause();
+                return supervisor;
+            }
+            catch (Exception ex)
             {
+                Console.WriteLine($"Error: {ex.Message}");
                 Pause();
-                return null;
             }
-
-            Console.Write("Enter your Name: ");
-            string name = Console.ReadLine() ?? string.Empty;
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                Console.WriteLine("Name cannot be empty.");
-                Pause();
-                return null;
-            }
-
-            Console.Write("Enter your Email: ");
-            string email = Console.ReadLine() ?? string.Empty;
-            if (string.IsNullOrWhiteSpace(email) || !ValidateEmail(email))
-            {
-                Console.WriteLine("Invalid email address. Please try again.");
-                Pause();
-                return null;
-            }
-
-            var supervisor = new PersonalSupervisor { Id = id, Name = name, Email = email };
-            personalSupervisorService.AddPersonalSupervisor(supervisor);
-
-            Console.WriteLine("Supervisor added successfully.");
-            Pause();
-            return supervisor; // Always return a valid supervisor
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error: {ex.Message}");
-            Pause();
-            return null;
         }
     }
-
 
     // Add a Senior Tutor
     static bool AddSeniorTutor(SeniorTutorService seniorTutorService)
@@ -246,15 +237,15 @@ class Program
 
             if (!int.TryParse(input, out int id))
             {
-                Console.WriteLine("Invalid ID. Please enter a valid number.");
+                Console.WriteLine("Invalid ID. Please try again.");
                 Pause();
-                return false; // Return false instead of null
+                return false;
             }
 
             if (!ValidateId(id, 10, 99, "Senior Tutor"))
             {
                 Pause();
-                return false; // Return false for invalid ID
+                return false;
             }
 
             Console.Write("Enter your Name: ");
@@ -263,30 +254,29 @@ class Program
             {
                 Console.WriteLine("Name cannot be empty.");
                 Pause();
-                return false; // Return false for empty name
+                return false;
             }
 
             Console.Write("Enter your Email: ");
-            string email = Console.ReadLine(); 
-            if (string.IsNullOrWhiteSpace(email) || !ValidateEmail(email))
+            string email = Console.ReadLine() ?? string.Empty;
+            if (!ValidateEmail(email))
             {
-                Console.WriteLine("Invalid email address. Please try again.");
                 Pause();
-                return false; // Return false for invalid email
+                return false;
             }
 
             var seniorTutor = new SeniorTutor { Id = id, Name = name, Email = email };
             seniorTutorService.AddSeniorTutor(seniorTutor);
 
-            Console.WriteLine("Senior Tutor logged in successfully.");
+            Console.WriteLine("Senior Tutor added successfully.");
             Pause();
-            return true; // Return true for successful addition
+            return true;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error: {ex.Message}");
             Pause();
-            return false; // Return false if an exception occurs
+            return false;
         }
     }
 
@@ -367,6 +357,7 @@ class Program
         while (running)
         {
             Console.Clear();
+            Console.WriteLine($"Welcome to your Portal!");
             Console.WriteLine("Senior Tutor Menu:");
             Console.WriteLine("1. View All Students");
             Console.WriteLine("2. View All Scheduled Meetings");
@@ -423,14 +414,21 @@ class Program
     static void ReportStudentStatus(StudentService studentService, Student loggedInStudent)
     {
         Console.Write("Enter your Status Report: ");
-        string status = Console.ReadLine();
+        string status = Console.ReadLine() ?? string.Empty;
 
+        if (string.IsNullOrWhiteSpace(status))
+        {
+            Console.WriteLine("Status cannot be empty.");
+            return;
+        }
 
-        studentService.ReportStatus(loggedInStudent.Id, status);
-        Console.WriteLine($"Status updated successfully");
+        // Update the status in memory and save it
+        loggedInStudent.StatusReport = status;
+        studentService.UpdateStudent(loggedInStudent);
+
+        Console.WriteLine($"Status updated successfully for {loggedInStudent.Name}");
         Pause();
     }
-
 
     // Method to schedule a meeting
     static void ScheduleMeeting(MeetingService meetingService, Student loggedInStudent)

@@ -1,50 +1,70 @@
-﻿//jsonDataStorage.cs
-using System;
+﻿using System;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using EngagementTrackingSystem.Models;
 
-// Utility class for JSON data storage
 public class JsonDataStorage
 {
     private string filePath;
 
-    public JsonDataStorage(string filePath)
+    public JsonDataStorage(string relativePath)
     {
-        this.filePath = filePath;
+        // Ensure the path is always relative to the project directory
+        this.filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", relativePath);
+
+        // Ensure the directory exists
+        var directory = Path.GetDirectoryName(this.filePath);
+        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
     }
 
+
+    // Saves data to the JSON file
     public void SaveData<T>(T data)
     {
-        var json = JsonSerializer.Serialize(data, new JsonSerializerOptions
+        try
         {
-            WriteIndented = true,
-            Converters = { new DateTimeCustomConverter() }
-        });
-        File.WriteAllText(filePath, json);
+            var json = JsonSerializer.Serialize(data, new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                Converters = { new DateTimeCustomConverter() }
+            });
+            File.WriteAllText(filePath, json);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving data to {filePath}: {ex.Message}");
+        }
     }
 
+    // Loads data from the JSON file
     public T LoadData<T>()
     {
-        if (!File.Exists(filePath))
+        try
         {
-            return Activator.CreateInstance<T>(); // Default object for generic type T
+            if (!File.Exists(filePath))
+            {
+                File.WriteAllText(filePath, "[]"); // Create an empty array for collections
+                return Activator.CreateInstance<T>();
+            }
+
+            var json = File.ReadAllText(filePath);
+            return JsonSerializer.Deserialize<T>(json, new JsonSerializerOptions
+            {
+                Converters = { new DateTimeCustomConverter() }
+            }) ?? Activator.CreateInstance<T>();
         }
-
-        var json = File.ReadAllText(filePath);
-        return JsonSerializer.Deserialize<T>(json, new JsonSerializerOptions
+        catch (Exception ex)
         {
-            Converters = { new DateTimeCustomConverter() }
-        }) ?? Activator.CreateInstance<T>();
-
+            Console.WriteLine($"Error loading data from {filePath}: {ex.Message}");
+            return Activator.CreateInstance<T>();
+        }
     }
-
 }
 
-
-// Custom DateTime Converter to include 12:00 PM instead of 00:00
-
+// Custom DateTime Converter
 public class DateTimeCustomConverter : JsonConverter<DateTime>
 {
     private readonly string[] formats = new[]
@@ -70,7 +90,6 @@ public class DateTimeCustomConverter : JsonConverter<DateTime>
 
     public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
     {
-        // Serialize as "yyyy-MM-dd hh:mm tt"
         writer.WriteStringValue(value.ToString("yyyy-MM-dd hh:mm tt"));
     }
 }

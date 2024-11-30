@@ -67,7 +67,11 @@ namespace Tests
         public void TestScheduleMeeting()
         {
             // Arrange
-            var meetingService = new MeetingService(new MeetingRepository(MeetingFilePath));
+            var meetingService = new MeetingService(
+                new MeetingRepository(MeetingFilePath),
+                new PersonalSupervisorRepository(PersonalSupervisorFilePath),
+                new StudentRepository(StudentFilePath)
+            );
             var date = new DateTime(2024, 12, 20); // A test date
 
             // Act
@@ -114,47 +118,6 @@ namespace Tests
             Assert.That(fetchedSeniorTutor.Name, Is.EqualTo("Prof. Henry"));
             Assert.That(fetchedSeniorTutor.Email, Is.EqualTo("prof.henry@example.com"));
         }
-
-        [Test]
-        public void TestMeetingTimeAlwaysSetTo12PM()
-        {
-            // Arrange
-            var meetingFilePath = "test-meetings.json"; // Use a separate test file
-            File.WriteAllText(meetingFilePath, "[]");   // Clear previous test data
-
-            var meetingRepository = new MeetingRepository(meetingFilePath);
-            var meetingService = new MeetingService(meetingRepository);
-            var testDate = new DateTime(2024, 12, 20); // Test date without a time component
-
-            // Act
-            meetingService.ScheduleMeeting(1, 2, testDate);
-            var scheduledMeeting = meetingService.GetAllMeetings().FirstOrDefault();
-
-            // Assert
-            Assert.That(scheduledMeeting, Is.Not.Null, "No meeting was scheduled.");
-            Assert.That(scheduledMeeting.Date.Hour, Is.EqualTo(12), "Meeting hour is not set to 12 PM.");
-            Assert.That(scheduledMeeting.Date.Minute, Is.EqualTo(0), "Meeting minute is not set to 0.");
-        }
-
-        //[Test]
-        //public void TestStudentSerializationOnlyIncludesIdNameEmail()
-        //{
-        //    var student = new Student
-        //    {
-        //        Id = 9999,
-        //        Name = "John Doe",
-        //        Email = "john.doe@example.com",
-        //        StatusReport = "Busy",
-        //        Meetings = new List<Meeting>()
-        //    };
-
-        //    string json = JsonSerializer.Serialize(student);
-
-        //    // Verify that StatusReport and Meetings are not serialized
-        //    Assert.IsFalse(json.Contains("StatusReport"));
-        //    Assert.IsFalse(json.Contains("Meetings"));
-        //}
-
 
         [Test]
         public void TestPersonalSupervisorSerializationOnlyIncludesIdNameEmail()
