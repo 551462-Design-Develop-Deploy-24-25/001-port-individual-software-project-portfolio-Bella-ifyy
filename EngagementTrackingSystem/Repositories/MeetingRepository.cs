@@ -1,64 +1,96 @@
-﻿//meetingrepositoy
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using EngagementTrackingSystem.Models;
 
 namespace EngagementTrackingSystem.Repositories
 {
     public class MeetingRepository
     {
-        private List<Meeting> meetings; // In-memory list of meetings
-        private JsonDataStorage dataStorage; // Data storage utility
+        private List<Meeting> meetings;
+        private JsonDataStorage dataStorage;
 
         public MeetingRepository(string filePath)
         {
             dataStorage = new JsonDataStorage(filePath);
+            meetings = dataStorage.LoadData<List<Meeting>>() ?? new List<Meeting>();
 
-            // Ensure the data is never null
-            meetings = dataStorage.LoadData<List<Meeting>>() ?? throw new InvalidOperationException("Meeting data is missing or invalid.");
+            // Reset ID counter based on current meetings
+            if (meetings.Count > 0)
+            {
+                nextId = meetings.Max(m => m.Id) + 1;
+            }
+            else
+            {
+                nextId = 1;
+            }
         }
 
-        // Retrieves all meetings
-        public IEnumerable<Meeting> GetAllMeetings()
-        {
-            return meetings; // Safe because meetings is initialized in the constructor
-        }
+        private int nextId;
 
-        // Retrieves a meeting by ID
-        public Meeting GetMeetingById(int id)
-        {
-            return meetings.Find(m => m.Id == id) ?? throw new KeyNotFoundException($"Meeting with ID {id} not found.");
-        }
-
-        // Adds a new meeting and saves data
         public void AddMeeting(Meeting meeting)
         {
+            meeting.Id = nextId++;
             meetings.Add(meeting);
-            dataStorage.SaveData(meetings); // Save updated data
+            dataStorage.SaveData(meetings);
         }
 
-        // Updates an existing meeting and saves data
+
+        public IEnumerable<Meeting> GetAllMeetings()
+        {
+            return meetings;
+        }
+
+        //public Meeting GetMeetingById(int id)
+        //{
+        //    var meeting = meetings.Find(m => m.Id == id);
+        //    if (meeting == null)
+        //    {
+        //        Console.WriteLine($"[Warning] Meeting with ID {id} not found.");
+        //        throw new KeyNotFoundException($"Meeting with ID {id} not found.");
+        //    }
+        //    return meeting;
+        //}
+
         public void UpdateMeeting(Meeting meeting)
         {
-            var existingMeeting = GetMeetingById(meeting.Id);
-            if (existingMeeting != null)
+            var existingMeeting = meetings.Find(m => m.Id == meeting.Id);
+            if (existingMeeting == null)
             {
-                existingMeeting.Date = meeting.Date;
-                existingMeeting.StudentId = meeting.StudentId;
-                existingMeeting.PersonalSupervisorId = meeting.PersonalSupervisorId;
-                dataStorage.SaveData(meetings); // Save updated data
+                Console.WriteLine($"[Warning] Cannot update meeting with ID {meeting.Id}. Meeting not found.");
+                return;
             }
+            existingMeeting.Date = meeting.Date;
+            existingMeeting.StudentId = meeting.StudentId;
+            existingMeeting.PersonalSupervisorId = meeting.PersonalSupervisorId;
+            dataStorage.SaveData(meetings);
         }
 
-        // Deletes a meeting by ID
         public void DeleteMeeting(int id)
         {
-            var meeting = GetMeetingById(id);
-            if (meeting != null)
+            var meeting = meetings.Find(m => m.Id == id);
+            if (meeting == null)
             {
-                meetings.Remove(meeting);
-                dataStorage.SaveData(meetings); // Save updated data
+                Console.WriteLine($"[Warning] Cannot delete meeting with ID {id}. Meeting not found.");
+                return;
             }
+            meetings.Remove(meeting);
+            dataStorage.SaveData(meetings);
+        }
+
+        public IEnumerable<Meeting> GetMeetingsByStudentId(int studentId)
+        {
+            return meetings.Where(m => m.StudentId == studentId);
+        }
+
+        public IEnumerable<Meeting> GetMeetingsBySupervisorId(int supervisorId)
+        {
+            return meetings.Where(m => m.PersonalSupervisorId == supervisorId);
+        }
+
+        private int GenerateMeetingId()
+        {
+            return meetings.Any() ? meetings.Max(m => m.Id) + 1 : 1;
         }
     }
 }

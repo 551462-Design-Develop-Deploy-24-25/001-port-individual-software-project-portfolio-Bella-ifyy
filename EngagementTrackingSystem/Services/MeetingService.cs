@@ -1,6 +1,7 @@
-﻿using System;
+﻿// Updated MeetingService.cs
+using System;
 using System.Collections.Generic;
-using System.Linq; // Add this for LINQ methods like Count()
+using System.Linq; // For LINQ methods like Count()
 using EngagementTrackingSystem.Models;
 using EngagementTrackingSystem.Repositories;
 
@@ -28,17 +29,6 @@ namespace EngagementTrackingSystem.Service
             return meetingRepository.GetAllMeetings();
         }
 
-        // Retrieve a meeting by ID
-        public Meeting GetMeetingById(int id)
-        {
-            var meeting = meetingRepository.GetMeetingById(id);
-            if (meeting == null)
-            {
-                throw new KeyNotFoundException($"Meeting with ID {id} not found.");
-            }
-            return meeting;
-        }
-
         // Add a new meeting
         public void AddMeeting(Meeting meeting)
         {
@@ -49,28 +39,29 @@ namespace EngagementTrackingSystem.Service
             meetingRepository.AddMeeting(meeting);
         }
 
-        // Schedule a meeting between a student and a supervisor
+        // Schedule a meeting
         public void ScheduleMeeting(int studentId, int supervisorId, DateTime date)
         {
             try
             {
-                // Validate supervisor existence
-                var supervisor = personalSupervisorRepository.GetPersonalSupervisorById(supervisorId);
+                var supervisor = personalSupervisorRepository.GetPersonalSupervisorById(supervisorId)
+                ?? throw new KeyNotFoundException($"Supervisor with ID {supervisorId} not found.");
+
+                var student = studentRepository.GetStudentById(studentId)
+                    ?? throw new KeyNotFoundException($"Student with ID {studentId} not found.");
+
                 if (supervisor == null)
                 {
                     Console.WriteLine($"Error: Supervisor with ID {supervisorId} not found. Please try again.");
                     return;
                 }
 
-                // Validate student existence
-                var student = studentRepository.GetStudentById(studentId);
                 if (student == null)
                 {
-                    Console.WriteLine($"Error: Student with ID {studentId} is not logged in. Please try again.");
+                    Console.WriteLine($"Error: Student with ID {studentId} not found. Please try again.");
                     return;
                 }
 
-                // Proceed to create and save meeting
                 var meeting = new Meeting
                 {
                     Id = meetingRepository.GetAllMeetings().Count() + 1,
@@ -80,14 +71,16 @@ namespace EngagementTrackingSystem.Service
                 };
                 meetingRepository.AddMeeting(meeting);
 
+                // Update supervisor's meeting list
+                supervisor.Meetings.Add(meeting);
+                personalSupervisorRepository.UpdatePersonalSupervisor(supervisor);
+
                 Console.WriteLine("Meeting successfully scheduled!");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+                Console.WriteLine($"An error occurred: {ex.Message}");
             }
-
         }
     }
 }
-

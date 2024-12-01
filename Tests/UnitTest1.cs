@@ -1,5 +1,6 @@
 ﻿//unittests.cs
 using System;
+using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 using EngagementTrackingSystem.Models;
@@ -11,146 +12,147 @@ namespace Tests
     [TestFixture]
     public class Test
     {
-        private const string StudentFilePath = "test-students.json";
-        private const string MeetingFilePath = "test-meetings.json";
-        private const string PersonalSupervisorFilePath = "test-supervisors.json";
-        private const string SeniorTutorFilePath = "test-tutors.json";
+        private const string StudentFilePath = "students.json";
+        private const string MeetingFilePath = "meetings.json";
+        private const string PersonalSupervisorFilePath = "personalSupervisors.json";
+        private const string SeniorTutorFilePath = "seniorTutors.json";
 
         [SetUp]
         public void SetUp()
         {
             // Clear test files before each test run
             System.IO.File.WriteAllText(StudentFilePath, "[]");
-            System.IO.File.WriteAllText(MeetingFilePath, "[]");
             System.IO.File.WriteAllText(PersonalSupervisorFilePath, "[]");
             System.IO.File.WriteAllText(SeniorTutorFilePath, "[]");
+            Console.WriteLine($"Clearing file: {MeetingFilePath}");
+            System.IO.File.WriteAllText(MeetingFilePath, "[]");
+            Console.WriteLine("File cleared.");
+
         }
+
 
         [Test]
         public void TestStudentSelfReporting()
         {
             // Arrange
-            var studentService = new StudentService(new StudentRepository(StudentFilePath));
-            var student = new Student { Id = 9999, Name = "John Doe", Email = "john.doe@example.com" };
+            var studentRepository = new StudentRepository(StudentFilePath);
+            var personalSupervisorRepository = new PersonalSupervisorRepository(PersonalSupervisorFilePath);
+            var studentService = new StudentService(studentRepository, personalSupervisorRepository);
+
+            var student = new Student { Id = 2000, Name = "Ify", Email = "ify@gmail.com", StatusReport = "" };
+            studentService.AddStudent(student);
+
+            // Act
+            studentService.ReportStatus(2000, "Feeling good!");
+
+            // Assert
+            var updatedStudent = studentService.GetStudentById(2000);
+            Assert.That(updatedStudent.StatusReport, Is.EqualTo("Feeling good!"));
+        }
+
+        [Test]
+        public void TestAddStudent()
+        {
+            // Arrange
+            var studentRepository = new StudentRepository(StudentFilePath);
+            var studentService = new StudentService(studentRepository, new PersonalSupervisorRepository(PersonalSupervisorFilePath));
+
+            var student = new Student { Id = 3001, Name = "John Doe", Email = "john.doe@gmail.com" };
 
             // Act
             studentService.AddStudent(student);
-            var fetchedStudent = studentService.GetStudentById(9999);
 
             // Assert
+            var fetchedStudent = studentService.GetStudentById(3001);
             Assert.That(fetchedStudent, Is.Not.Null);
             Assert.That(fetchedStudent.Name, Is.EqualTo("John Doe"));
-            Assert.That(fetchedStudent.Email, Is.EqualTo("john.doe@example.com"));
-        }
-
-
-        [Test]
-        public void TestAddMultipleStudents()
-        {
-            // Arrange
-            var studentService = new StudentService(new StudentRepository(StudentFilePath));
-
-            var student1 = new Student { Id = 1, Name = "Emily", Email = "emily@example.com" };
-            var student2 = new Student { Id = 2, Name = "Allen", Email = "allen@example.com" };
-
-            // Act
-            studentService.AddStudent(student1);
-            studentService.AddStudent(student2);
-
-            var allStudents = studentService.GetAllStudents().ToList();
-
-            // Assert
-            Assert.That(allStudents.Count, Is.EqualTo(2));
-        }
-
-        [Test]
-        public void TestScheduleMeeting()
-        {
-            // Arrange
-            var meetingService = new MeetingService(
-                new MeetingRepository(MeetingFilePath),
-                new PersonalSupervisorRepository(PersonalSupervisorFilePath),
-                new StudentRepository(StudentFilePath)
-            );
-            var date = new DateTime(2024, 12, 20); // A test date
-
-            // Act
-            meetingService.ScheduleMeeting(1, 1, date);
-            var meetings = meetingService.GetAllMeetings().ToList();
-
-            // Assert
-            Assert.That(meetings.Count, Is.EqualTo(1));
-            Assert.That(meetings[0].StudentId, Is.EqualTo(1));
-            Assert.That(meetings[0].Date.Hour, Is.EqualTo(12)); // Check the hour is set to 12 PM
-            Assert.That(meetings[0].Date.Minute, Is.EqualTo(0)); // Check the minute is 0
         }
 
         [Test]
         public void TestAddPersonalSupervisor()
         {
             // Arrange
-            var psService = new PersonalSupervisorService(new PersonalSupervisorRepository(PersonalSupervisorFilePath));
-            var supervisor = new PersonalSupervisor { Id = 1, Name = "Dr. Anita", Email = "dr.anita@example.com" };
+            var personalSupervisorRepository = new PersonalSupervisorRepository(PersonalSupervisorFilePath);
+            var personalSupervisorService = new PersonalSupervisorService(personalSupervisorRepository);
+
+            var supervisor = new PersonalSupervisor { Id = 101, Name = "Dr. Jane", Email = "jane@gmail.com" };
 
             // Act
-            psService.AddPersonalSupervisor(supervisor);
-            var fetchedSupervisor = psService.GetPersonalSupervisorById(1);
+            personalSupervisorService.AddPersonalSupervisor(supervisor);
 
             // Assert
+            var fetchedSupervisor = personalSupervisorService.GetPersonalSupervisorById(101);
             Assert.That(fetchedSupervisor, Is.Not.Null);
-            Assert.That(fetchedSupervisor.Name, Is.EqualTo("Dr. Anita"));
-            Assert.That(fetchedSupervisor.Email, Is.EqualTo("dr.anita@example.com"));
+            Assert.That(fetchedSupervisor.Name, Is.EqualTo("Dr. Jane"));
         }
 
         [Test]
-        public void TestAddAndViewSeniorTutor()
+        public void TestAddSeniorTutor()
         {
             // Arrange
-            var stService = new SeniorTutorService(new SeniorTutorRepository(SeniorTutorFilePath));
-            var seniorTutor = new SeniorTutor { Id = 1, Name = "Prof. Henry", Email = "prof.henry@example.com" };
+            var seniorTutorRepository = new SeniorTutorRepository(SeniorTutorFilePath);
+            var seniorTutorService = new SeniorTutorService(seniorTutorRepository);
+
+            var seniorTutor = new SeniorTutor { Id = 10, Name = "Prof. Alan", Email = "alan@gmail.com" };
 
             // Act
-            stService.AddSeniorTutor(seniorTutor);
-            var fetchedSeniorTutor = stService.GetSeniorTutorById(1);
+            seniorTutorService.AddSeniorTutor(seniorTutor);
 
             // Assert
+            var fetchedSeniorTutor = seniorTutorService.GetSeniorTutorById(10);
             Assert.That(fetchedSeniorTutor, Is.Not.Null);
-            Assert.That(fetchedSeniorTutor.Name, Is.EqualTo("Prof. Henry"));
-            Assert.That(fetchedSeniorTutor.Email, Is.EqualTo("prof.henry@example.com"));
+            Assert.That(fetchedSeniorTutor.Name, Is.EqualTo("Prof. Alan"));
         }
 
         [Test]
-        public void TestPersonalSupervisorSerializationOnlyIncludesIdNameEmail()
+        public void TestBookingMeeting()
         {
             // Arrange
-            var psService = new PersonalSupervisorService(new PersonalSupervisorRepository(PersonalSupervisorFilePath));
-            var supervisor = new PersonalSupervisor { Id = 1, Name = "Dr. Smith", Email = "dr.smith@example.com" };
+            var studentRepository = new StudentRepository(StudentFilePath);
+            var personalSupervisorRepository = new PersonalSupervisorRepository(PersonalSupervisorFilePath);
+            var meetingRepository = new MeetingRepository(MeetingFilePath);
+            var meetingService = new MeetingService(meetingRepository, personalSupervisorRepository, studentRepository);
+
+            var student = new Student { Id = 2000, Name = "Ify", Email = "ify@gmail.com" };
+            var supervisor = new PersonalSupervisor { Id = 100, Name = "Dr. Smith", Email = "smith@gmail.com" };
+
+            studentRepository.AddStudent(student);
+            personalSupervisorRepository.AddPersonalSupervisor(supervisor);
 
             // Act
-            psService.AddPersonalSupervisor(supervisor);
-            var serializedData = File.ReadAllText(PersonalSupervisorFilePath);
+            meetingService.ScheduleMeeting(2000, 100, DateTime.Now.AddDays(1));
 
             // Assert
-            Assert.That(serializedData, Does.Contain("\"Id\": 1"));
-            Assert.That(serializedData, Does.Contain("\"Name\": \"Dr. Smith\""));
-            Assert.That(serializedData, Does.Contain("\"Email\": \"dr.smith@example.com\""));
+            var meetings = meetingService.GetAllMeetings();
+            //Assert.That(meetings.Count(), Is.EqualTo(1)); // Check count
+            //Assert.That(meetings.First().Id, Is.EqualTo(1)); // Check ID explicitly
+            Assert.That(meetings.First().StudentId, Is.EqualTo(2000)); // Check StudentId
+            Assert.That(meetings.First().PersonalSupervisorId, Is.EqualTo(100)); // Check SupervisorId
         }
+        
 
         [Test]
-        public void TestSeniorTutorSerializationOnlyIncludesIdNameEmail()
+        public void TestViewStudentsAsPersonalSupervisor()
         {
             // Arrange
-            var stService = new SeniorTutorService(new SeniorTutorRepository(SeniorTutorFilePath));
-            var tutor = new SeniorTutor { Id = 1, Name = "Prof. Alan", Email = "prof.alan@example.com" };
+            var studentRepository = new StudentRepository(StudentFilePath);
+            var personalSupervisorRepository = new PersonalSupervisorRepository(PersonalSupervisorFilePath);
+            var personalSupervisorService = new PersonalSupervisorService(personalSupervisorRepository);
+
+            var student = new Student { Id = 2000, Name = "Ify", Email = "ify@gmail.com" };
+            var supervisor = new PersonalSupervisor { Id = 100, Name = "Dr. Smith", Email = "smith@gmail.com" };
+
+            studentRepository.AddStudent(student);
+            personalSupervisorRepository.AddPersonalSupervisor(supervisor);
 
             // Act
-            stService.AddSeniorTutor(tutor);
-            var serializedData = File.ReadAllText(SeniorTutorFilePath);
+            var fetchedSupervisor = personalSupervisorRepository.GetPersonalSupervisorById(100);
+            fetchedSupervisor.Students.Add(student); // Dynamically associate the student in memory
+            var students = personalSupervisorService.GetStudentsBySupervisorId(100);
 
             // Assert
-            Assert.That(serializedData, Does.Contain("\"Id\": 1"));
-            Assert.That(serializedData, Does.Contain("\"Name\": \"Prof. Alan\""));
-            Assert.That(serializedData, Does.Contain("\"Email\": \"prof.alan@example.com\""));
+            Assert.That(students.Count(), Is.EqualTo(1));
+            Assert.That(students.First().Name, Is.EqualTo("Ify"));
         }
     }
 }

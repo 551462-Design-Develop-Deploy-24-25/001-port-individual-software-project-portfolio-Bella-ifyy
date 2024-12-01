@@ -16,7 +16,7 @@ class Program
         var meetingRepository = new MeetingRepository("JsonData/meetings.json");
 
         // Initialize services
-        var studentService = new StudentService(studentRepository);
+        var studentService = new StudentService(studentRepository, personalSupervisorRepository);
         var personalSupervisorService = new PersonalSupervisorService(personalSupervisorRepository);
         var seniorTutorService = new SeniorTutorService(seniorTutorRepository);
         var meetingService = new MeetingService(meetingRepository, personalSupervisorRepository, studentRepository);
@@ -126,7 +126,7 @@ class Program
     // Add a Student and return the logged-in student object
     static Student AddStudent(StudentService studentService)
     {
-        while (true) // Loop until valid data is provided
+        while (true)
         {
             try
             {
@@ -174,6 +174,7 @@ class Program
             }
         }
     }
+
 
     // Add a Personal Supervisor
     static PersonalSupervisor AddPersonalSupervisor(PersonalSupervisorService personalSupervisorService)
@@ -389,13 +390,13 @@ class Program
     {
         Console.Write("Enter Student ID: ");
         var input = Console.ReadLine() ?? string.Empty;
+
         if (!int.TryParse(input, out int studentId))
         {
             Console.WriteLine("Invalid Student ID. Please try again.");
             Pause();
             return;
         }
-
 
         Console.Write("Enter Meeting Date (yyyy-mm-dd): ");
         var dateInput = Console.ReadLine() ?? string.Empty;
@@ -405,6 +406,7 @@ class Program
             Pause();
             return;
         }
+
         meetingService.ScheduleMeeting(studentId, loggedInSupervisor.Id, date);
         Console.WriteLine("Meeting scheduled successfully.");
         Pause();
@@ -434,7 +436,14 @@ class Program
     static void ScheduleMeeting(MeetingService meetingService, Student loggedInStudent)
     {
         Console.Write("Enter Personal Supervisor ID: ");
-        int supervisorId = int.Parse(Console.ReadLine());
+        var input = Console.ReadLine() ?? string.Empty;
+
+        if (!int.TryParse(input, out int supervisorId))
+        {
+            Console.WriteLine("Invalid supervisor ID. Please try again.");
+            Pause();
+            return;
+        }
 
         Console.Write("Enter Meeting Date (yyyy-mm-dd): ");
         var dateInput = Console.ReadLine() ?? string.Empty;
@@ -444,10 +453,12 @@ class Program
             Pause();
             return;
         }
+
         meetingService.ScheduleMeeting(loggedInStudent.Id, supervisorId, date);
         Console.WriteLine("Meeting scheduled successfully.");
         Pause();
     }
+
 
     // Method to view all registered students
     static void ViewAllStudents(StudentService studentService)
@@ -486,6 +497,4 @@ class Program
         }
         Console.ReadLine(); // Pause to let user see the message
     }
-
-
 }

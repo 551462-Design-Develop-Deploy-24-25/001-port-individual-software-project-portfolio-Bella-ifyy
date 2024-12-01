@@ -1,65 +1,7 @@
 [
   {
-    "Id": 200,
-    "Name": "fola",
-    "Email": "fola@hull.ac.uk",
-    "Students": [],
-    "Meetings": []
-  },
-  {
-    "Id": 999,
-    "Name": "Anita",
-    "Email": "anita@hull.ac.uk",
-    "Students": [],
-    "Meetings": []
-  },
-  {
-    "Id": 303,
-    "Name": "Gerald",
-    "Email": "gerald@yahoo.com",
-    "Students": [],
-    "Meetings": []
-  },
-  {
-    "Id": 766,
-    "Name": "Sheila",
-    "Email": "sheila@hotmail.com",
-    "Students": [],
-    "Meetings": []
-  },
-  {
-    "Id": 209,
-    "Name": "Julie",
-    "Email": "julie@hotmail.com",
-    "Students": [],
-    "Meetings": []
-  },
-  {
-    "Id": 307,
-    "Name": "Sandy",
-    "Email": "sandy@outlook.com",
-    "Students": [],
-    "Meetings": [
-      {
-        "Id": 10,
-        "Date": "2024-12-30 12:00 PM",
-        "StudentId": 307,
-        "PersonalSupervisorId": 307
-      }
-    ]
-  },
-  {
-    "Id": 300,
-    "Name": "Holland",
-    "Email": "holland@hull.ac.uk",
-    "Students": [],
-    "Meetings": []
-  },
-  {
-    "Id": 303,
-    "Name": "Asher",
-    "Email": "asher@hotmail.com",
-    "Students": [],
-    "Meetings": []
+    "Id": 100,
+    "Name": "Dr. Smith",
+    "Email": "smith@gmail.com"
   }
 ]

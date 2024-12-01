@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Updated StudentService.cs
+using System;
 using System.Collections.Generic;
 using EngagementTrackingSystem.Models;
 using EngagementTrackingSystem.Repositories;
@@ -7,11 +8,13 @@ namespace EngagementTrackingSystem.Service
 {
     public class StudentService
     {
-        private StudentRepository studentRepository;
+        private readonly StudentRepository studentRepository;
+        private readonly PersonalSupervisorRepository personalSupervisorRepository;
 
-        public StudentService(StudentRepository studentRepository)
+        public StudentService(StudentRepository studentRepository, PersonalSupervisorRepository personalSupervisorRepository)
         {
             this.studentRepository = studentRepository;
+            this.personalSupervisorRepository = personalSupervisorRepository;
         }
 
         public IEnumerable<Student> GetAllStudents()
@@ -45,6 +48,18 @@ namespace EngagementTrackingSystem.Service
 
             student.StatusReport = status;
             studentRepository.UpdateStudent(student);
+
+            // Link status to supervisor
+            foreach (var supervisor in personalSupervisorRepository.GetAllPersonalSupervisors())
+            {
+                var supervisedStudent = supervisor.Students?.FirstOrDefault(s => s.Id == studentId);
+                if (supervisedStudent != null)
+                {
+                    supervisedStudent.StatusReport = status;
+                    personalSupervisorRepository.UpdatePersonalSupervisor(supervisor);
+                    break;
+                }
+            }
         }
     }
 }

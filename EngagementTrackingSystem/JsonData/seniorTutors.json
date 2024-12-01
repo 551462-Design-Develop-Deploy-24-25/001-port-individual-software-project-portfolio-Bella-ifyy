@@ -1,32 +1,13 @@
 [
   {
-    "Id": 40,
-    "Name": "tina",
-    "Email": "tina@hull.ac.uk",
-    "PersonalSupervisors": []
+    "Id": 20,
+    "Name": "Giveon",
+    "Email": "giveon@hotmail.com",
+    "PersonalSupervisors": 100
   },
   {
-    "Id": 99,
-    "Name": "Henry",
-    "Email": "henry@hull.ac.uk",
-    "PersonalSupervisors": []
-  },
-  {
-    "Id": 76,
-    "Name": "Lola",
-    "Email": "lola@gmail.com",
-    "PersonalSupervisors": []
-  },
-  {
-    "Id": 22,
-    "Name": "O\u0027brien",
-    "Email": "brien@outlook.com",
-    "PersonalSupervisors": []
-  },
-  {
-    "Id": 30,
-    "Name": "Wande",
-    "Email": "wande@hull.ac.uk",
-    "PersonalSupervisors": []
+    "Id": 10,
+    "Name": "Prof. Alan",
+    "Email": "alan@gmail.com"
   }
 ]
