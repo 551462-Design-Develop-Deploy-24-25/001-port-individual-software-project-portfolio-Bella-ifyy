@@ -1,4 +1,5 @@
-﻿using System;
+﻿//Jsondatastorage.cs
+using System;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -9,10 +10,10 @@ public class JsonDataStorage
 
     public JsonDataStorage(string relativePath)
     {
-        // Ensure the path is always relative to the project directory
+        // Ensures the path is always relative to the project directory
         this.filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", relativePath);
 
-        // Ensure the directory exists
+        // Ensures the directory exists
         var directory = Path.GetDirectoryName(this.filePath);
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
         {

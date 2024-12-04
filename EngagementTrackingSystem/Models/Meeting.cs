@@ -1,4 +1,4 @@
-﻿//meeting.cs
+﻿//Meeting.cs
 using System;
 
 namespace EngagementTrackingSystem.Models
