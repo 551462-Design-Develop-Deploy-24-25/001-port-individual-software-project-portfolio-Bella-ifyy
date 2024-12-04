@@ -47,12 +47,5 @@ namespace EngagementTrackingSystem.Service
         {
             seniorTutorRepository.DeleteSeniorTutor(id);
         }
-
-        // Retrieves all personal supervisors under a senior tutor
-        //public IEnumerable<PersonalSupervisor> GetAllPersonalSupervisorsForSeniorTutor(int seniorTutorId)
-        //{
-        //    var seniorTutor = seniorTutorRepository.GetSeniorTutorById(seniorTutorId);
-        //    //return seniorTutor?.PersonalSupervisors ?? new List<PersonalSupervisor>();
-        //}
     }
 }
