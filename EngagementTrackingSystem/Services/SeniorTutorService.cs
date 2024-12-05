@@ -1,5 +1,4 @@
-﻿//seniorTutorService.cs
-// Using directives
+﻿//SeniorTutor.cs
 using System;
 using System.Collections.Generic;
 using EngagementTrackingSystem.Models;
@@ -10,7 +9,7 @@ namespace EngagementTrackingSystem.Service
     // Service class for senior tutor-related operations
     public class SeniorTutorService
     {
-        private SeniorTutorRepository seniorTutorRepository;
+        private SeniorTutorRepository seniorTutorRepository; // Handles Senior tutor data
 
         // Constructor accepts a senior tutor repository instance
         public SeniorTutorService(SeniorTutorRepository seniorTutorRepository)

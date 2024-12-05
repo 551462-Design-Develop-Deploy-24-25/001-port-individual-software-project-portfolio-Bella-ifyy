@@ -1,14 +1,17 @@
-﻿using System;
+﻿//SeniorTutor.cs
+using System;
 using System.Collections.Generic;
 using EngagementTrackingSystem.Models;
 
 namespace EngagementTrackingSystem.Repositories
 {
+    // Handles data access and management for senior tutors
     public class SeniorTutorRepository
     {
         private List<SeniorTutor> seniorTutors; // In-memory list
         private JsonDataStorage dataStorage; // Data storage utility
 
+        // Constructor initializes repository with file storage
         public SeniorTutorRepository(string filePath)
         {
             dataStorage = new JsonDataStorage(filePath);
@@ -29,7 +32,7 @@ namespace EngagementTrackingSystem.Repositories
             return seniorTutors.Find(st => st.Id == id) ?? throw new KeyNotFoundException($"Senior Tutor with ID {id} not found.");
         }
 
-        // Adds a new senior tutor and saves data
+        // Adds a new senior tutor and saves data to storage
         public void AddSeniorTutor(SeniorTutor seniorTutor)
         {
             seniorTutors.Add(seniorTutor);

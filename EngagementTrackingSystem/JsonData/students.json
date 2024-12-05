@@ -1,18 +1,22 @@
-//students.json files storing all students details
 [
   {
-    "Id": 2000,
-    "Name": "Ify",
-    "Email": "ify@gmail.com"
+    "Id": 5050,
+    "Name": "Anna",
+    "Email": "helen@hull.ac.uk"
   },
   {
-    "Id": 3001,
-    "Name": "John Doe",
-    "Email": "john.doe@gmail.com"
+    "Id": 5050,
+    "Name": "Dayo",
+    "Email": "dayo@hull.ac.uk"
   },
   {
-    "Id": 2020,
-    "Name": "Queen",
-    "Email": "queeneth@hull.ac.uk"
+    "Id": 5050,
+    "Name": "Anna",
+    "Email": "anna@hotmail.com"
+  },
+  {
+    "Id": 9111,
+    "Name": "Toria",
+    "Email": "victoria@hull.ac.uk"
   }
 ]

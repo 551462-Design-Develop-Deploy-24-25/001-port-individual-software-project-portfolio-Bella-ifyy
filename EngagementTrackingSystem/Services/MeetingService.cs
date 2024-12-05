@@ -1,4 +1,4 @@
-﻿// Updated MeetingService.cs
+﻿//MeetingService.cs
 using System;
 using System.Collections.Generic;
 using System.Linq; // For LINQ methods like Count()
@@ -7,12 +7,14 @@ using EngagementTrackingSystem.Repositories;
 
 namespace EngagementTrackingSystem.Service
 {
+    // Service class for meeting-related operations
     public class MeetingService
     {
-        private readonly MeetingRepository meetingRepository;
-        private readonly PersonalSupervisorRepository personalSupervisorRepository;
-        private readonly StudentRepository studentRepository;
+        private readonly MeetingRepository meetingRepository; // Handles meeting data
+        private readonly PersonalSupervisorRepository personalSupervisorRepository; // Handles supervisor data
+        private readonly StudentRepository studentRepository; // Handles student data
 
+        // Constructor initializes repositories
         public MeetingService(
             MeetingRepository meetingRepository,
             PersonalSupervisorRepository personalSupervisorRepository,
@@ -23,13 +25,13 @@ namespace EngagementTrackingSystem.Service
             this.studentRepository = studentRepository ?? throw new ArgumentNullException(nameof(studentRepository));
         }
 
-        // Retrieve all meetings
+        // Retrieves all meetings from the repository
         public IEnumerable<Meeting> GetAllMeetings()
         {
             return meetingRepository.GetAllMeetings();
         }
 
-        // Add a new meeting
+        // Adds a new meeting to the repository
         public void AddMeeting(Meeting meeting)
         {
             if (meeting == null)
@@ -39,29 +41,20 @@ namespace EngagementTrackingSystem.Service
             meetingRepository.AddMeeting(meeting);
         }
 
-        // Schedule a meeting
+        // Schedules a meeting between a student and a supervisor
         public void ScheduleMeeting(int studentId, int supervisorId, DateTime date)
         {
             try
             {
+                // Fetch supervisor and student from repositories
                 var supervisor = personalSupervisorRepository.GetPersonalSupervisorById(supervisorId)
                 ?? throw new KeyNotFoundException($"Supervisor with ID {supervisorId} not found.");
 
                 var student = studentRepository.GetStudentById(studentId)
                     ?? throw new KeyNotFoundException($"Student with ID {studentId} not found.");
-
-                if (supervisor == null)
-                {
-                    Console.WriteLine($"Error: Supervisor with ID {supervisorId} not found. Please try again.");
-                    return;
-                }
-
-                if (student == null)
-                {
-                    Console.WriteLine($"Error: Student with ID {studentId} not found. Please try again.");
-                    return;
-                }
-
+                
+                
+                // Creates a new meeting 
                 var meeting = new Meeting
                 {
                     Id = meetingRepository.GetAllMeetings().Count() + 1,
@@ -69,9 +62,11 @@ namespace EngagementTrackingSystem.Service
                     PersonalSupervisorId = supervisorId,
                     Date = date.Date.AddHours(12)
                 };
+
+                // Adds meeting to the repoisitory
                 meetingRepository.AddMeeting(meeting);
 
-                // Update supervisor's meeting list
+                // Link meeting to supervisor and update repository
                 supervisor.Meetings.Add(meeting);
                 personalSupervisorRepository.UpdatePersonalSupervisor(supervisor);
 

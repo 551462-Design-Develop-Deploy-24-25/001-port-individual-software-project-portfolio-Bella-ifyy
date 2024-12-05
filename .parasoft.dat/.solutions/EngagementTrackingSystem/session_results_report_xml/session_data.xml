@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<ResultsSession>
+   <SessionData configName="Example Configuration" configPseudoUrl="c++test.user://Example Configuration" enabledAnalysis="Static" enabledHandlers="com.parasoft.xtest.checkers.api.scope.factory;com.parasoft.xtest.checkers.api.standards.factory" header="?? ??false??false??" runId="" startTime="1733359771710" tool="c++test">
+      <Authors/>
+      <Selection>
+         <Res id="EngagementTrackingSystem/EngagementTrackingSystem/Services/MeetingService.cs"/>
+      </Selection>
+      <XmlDataFiles/>
+   </SessionData>
+   <Locations/>
+   <CodingStandards>
+      <TestedFilesDetails>
+         <Total name="Suppressed / Total" supp="0" total="0"/>
+      </TestedFilesDetails>
+   </CodingStandards>
+</ResultsSession>

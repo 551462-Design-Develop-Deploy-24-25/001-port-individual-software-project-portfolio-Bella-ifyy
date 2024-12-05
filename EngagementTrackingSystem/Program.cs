@@ -21,18 +21,18 @@ class Program
         var seniorTutorService = new SeniorTutorService(seniorTutorRepository);
         var meetingService = new MeetingService(meetingRepository, personalSupervisorRepository, studentRepository);
      
-        bool running = true;
+        bool running = true; // Controls the main menu loop
 
         while (running)
         {
-            Console.Clear();
+            Console.Clear(); // Clear the console for better readability
             Console.WriteLine("Welcome to your Engagement Tracking System!");
             Console.WriteLine("1. Login as a Student");
             Console.WriteLine("2. Login as a Personal Supervisor");
             Console.WriteLine("3. Login as a Senior Tutor");
             Console.WriteLine("4. Exit");
             Console.Write("Enter your choice: ");
-            var choice = Console.ReadLine() ?? string.Empty;
+            var choice = Console.ReadLine() ?? string.Empty; // Read user input
 
             // Handle user choice
             switch (choice)
@@ -52,13 +52,13 @@ class Program
                     }
                     break;
                 case "3":
-                    if (AddSeniorTutor(seniorTutorService))
+                    if (AddSeniorTutor(seniorTutorService)) // Handle senior tutor login
                     {
                         SeniorTutorMenu(seniorTutorService, studentService, meetingService);
                     }
                     break;
                 case "4":
-                    running = false;
+                    running = false; // Exit the application
                     Console.WriteLine("Exiting the program...");
                     Pause();
                     break;
@@ -408,7 +408,7 @@ class Program
         }
 
         meetingService.ScheduleMeeting(studentId, loggedInSupervisor.Id, date);
-        Console.WriteLine("Meeting scheduled successfully.");
+        Console.WriteLine("Done.");
         Pause();
     }
 

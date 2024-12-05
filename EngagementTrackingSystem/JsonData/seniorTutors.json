@@ -1,14 +1,8 @@
-//seniorTutors.json file storing all ST details
 [
   {
-    "Id": 20,
-    "Name": "Giveon",
-    "Email": "giveon@hotmail.com",
-    "PersonalSupervisors": 100
-  },
-  {
-    "Id": 10,
-    "Name": "Prof. Alan",
-    "Email": "alan@gmail.com"
+    "Id": 12,
+    "Name": "Danny",
+    "Email": "danny@yahoo.com",
+    "PersonalSupervisors": []
   }
 ]

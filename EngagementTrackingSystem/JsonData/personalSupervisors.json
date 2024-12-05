@@ -1,8 +1,12 @@
-//personalSupervisors.json file storing all PS details
 [
   {
+    "Id": 200,
+    "Name": "WarnerB",
+    "Email": "warner@gmail.com"
+  },
+  {
     "Id": 100,
-    "Name": "Dr. Smith",
-    "Email": "smith@gmail.com"
+    "Name": "Roosevelt",
+    "Email": "roosevelt@hull.ac.uk"
   }
 ]

@@ -1,15 +1,19 @@
-﻿using System;
+﻿//MeetingRepository.cs
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using EngagementTrackingSystem.Models;
 
 namespace EngagementTrackingSystem.Repositories
 {
+    // Handles data access and management for meetings
     public class MeetingRepository
     {
-        private List<Meeting> meetings;
-        private JsonDataStorage dataStorage;
+        private List<Meeting> meetings; // In-memory meeting list
+        private JsonDataStorage dataStorage; // Utility for JSON file handling
+        private int nextId; // Tracks the next ID for meetings
 
+        // Constructor initializes repository with file storage
         public MeetingRepository(string filePath)
         {
             dataStorage = new JsonDataStorage(filePath);
@@ -18,6 +22,7 @@ namespace EngagementTrackingSystem.Repositories
             // Reset ID counter based on current meetings
             if (meetings.Count > 0)
             {
+                // Initialize nextId based on existing meetings
                 nextId = meetings.Max(m => m.Id) + 1;
             }
             else
@@ -26,8 +31,18 @@ namespace EngagementTrackingSystem.Repositories
             }
         }
 
-        private int nextId;
+        // Retrieves meetings for a specific student
+        public IEnumerable<Meeting> GetMeetingsByStudentId(int studentId)
+        {
+            return meetings.Where(m => m.StudentId == studentId);
+        }
 
+        // Retrieves meetings for a specific supervisor
+        public IEnumerable<Meeting> GetMeetingsBySupervisorId(int supervisorId)
+        {
+            return meetings.Where(m => m.PersonalSupervisorId == supervisorId);
+        }
+        // Adds a new meeting and saves to storage
         public void AddMeeting(Meeting meeting)
         {
             meeting.Id = nextId++;
@@ -35,23 +50,13 @@ namespace EngagementTrackingSystem.Repositories
             dataStorage.SaveData(meetings);
         }
 
-
+        // Retrieves all meetings
         public IEnumerable<Meeting> GetAllMeetings()
         {
             return meetings;
         }
 
-        //public Meeting GetMeetingById(int id)
-        //{
-        //    var meeting = meetings.Find(m => m.Id == id);
-        //    if (meeting == null)
-        //    {
-        //        Console.WriteLine($"[Warning] Meeting with ID {id} not found.");
-        //        throw new KeyNotFoundException($"Meeting with ID {id} not found.");
-        //    }
-        //    return meeting;
-        //}
-
+        // Updates an existing meeting
         public void UpdateMeeting(Meeting meeting)
         {
             var existingMeeting = meetings.Find(m => m.Id == meeting.Id);
@@ -60,12 +65,14 @@ namespace EngagementTrackingSystem.Repositories
                 Console.WriteLine($"[Warning] Cannot update meeting with ID {meeting.Id}. Meeting not found.");
                 return;
             }
+            // Update meeting details
             existingMeeting.Date = meeting.Date;
             existingMeeting.StudentId = meeting.StudentId;
             existingMeeting.PersonalSupervisorId = meeting.PersonalSupervisorId;
             dataStorage.SaveData(meetings);
         }
 
+        // Deletes a meeting by ID
         public void DeleteMeeting(int id)
         {
             var meeting = meetings.Find(m => m.Id == id);
@@ -78,19 +85,5 @@ namespace EngagementTrackingSystem.Repositories
             dataStorage.SaveData(meetings);
         }
 
-        public IEnumerable<Meeting> GetMeetingsByStudentId(int studentId)
-        {
-            return meetings.Where(m => m.StudentId == studentId);
-        }
-
-        public IEnumerable<Meeting> GetMeetingsBySupervisorId(int supervisorId)
-        {
-            return meetings.Where(m => m.PersonalSupervisorId == supervisorId);
-        }
-
-        private int GenerateMeetingId()
-        {
-            return meetings.Any() ? meetings.Max(m => m.Id) + 1 : 1;
-        }
     }
 }
